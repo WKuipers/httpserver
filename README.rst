@@ -22,3 +22,4 @@ Features
 * Bind to an ip address
 * Uses asyncio
 * Installs an 'httpserver' command
+* Has some adjustments for Wietse's bachelors thesis.

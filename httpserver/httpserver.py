@@ -162,6 +162,8 @@ class HttpProtocol(asyncio.Protocol):
         # Parse the headers
         for line in request_strings[1:]:
             if line == '':  # an empty line signals the end of the headers
+                if request['method'] == "POST":
+                    request['body'] = request_strings[-1]
                 break
             self.logger.debug("header: '%s'", line)
             header, body = line.split(': ', 1)
@@ -193,12 +195,28 @@ class HttpProtocol(asyncio.Protocol):
             self.keepalive = request.get('Connection') == 'Keep-Alive'
 
         # Check if we're getting a sane request
-        if request['method'] not in ('GET'):
+        if request['method'] not in (['GET','POST']):
             raise InvalidRequestError(501, 'Method not implemented')
         if request['version'] not in ('HTTP/1.0', 'HTTP/1.1'):
             raise InvalidRequestError(
                 505, 'Version not supported. Supported versions are: {}, {}'
                 .format('HTTP/1.0', 'HTTP/1.1'))
+        
+        # Handle POST request
+        if request['method'] == 'POST':
+            try:
+                matchid, balanced = request['body'].split('&')
+                _,matchid = matchid.split('=')
+                _,balanced = balanced.split('=')
+            except ValueError:
+                balanced = "no"
+                _,matchid = request['body'].split('=')
+            if balanced == "yes":
+                with open ('/tmp/balanced','a') as f:
+                    f.write(matchid + ',')
+            else:
+                with open ('/tmp/unbalanced','a') as f:
+                    f.write(matchid + ',')
 
         host, location = self._get_request_uri(request)
 

@@ -212,10 +212,10 @@ class HttpProtocol(asyncio.Protocol):
                 balanced = "no"
                 _,matchid = request['body'].split('=')
             if balanced == "yes":
-                with open ('/tmp/balanced','a') as f:
+                with open ('/home/wietse/balanced','a') as f:
                     f.write(matchid + ',')
             else:
-                with open ('/tmp/unbalanced','a') as f:
+                with open ('/home/wietse/unbalanced','a') as f:
                     f.write(matchid + ',')
 
         host, location = self._get_request_uri(request)
